@@ -28,7 +28,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -198,7 +199,7 @@ input {
 .ghost-button {
   background: rgba(19, 34, 46, 0.08);
   color: var(--ink);
-  align-self: start;
+  align-self: flex-start;
 }
 
 .error-copy {
@@ -210,7 +211,7 @@ input {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .summary-grid {
@@ -279,7 +280,118 @@ input {
 }
 
 .assignments-panel {
-  align-items: start;
+  align-items: flex-start;
+}
+
+.management-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.control-card {
+  display: grid;
+  gap: 1rem;
+  align-content: flex-start;
+}
+
+.wide-card {
+  grid-column: span 2;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.section-count {
+  min-width: 3rem;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(194, 91, 45, 0.12);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.stack-form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.inline-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.wide-card .inline-fields {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.field select {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  background: #fffdf8;
+}
+
+.success-copy {
+  margin: 0;
+  color: #2a7a4e;
+}
+
+.selector-panel {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.selector-label {
+  margin: 0;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.selector-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.selector-chip {
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 0.9rem 1rem;
+  background: #fffdf8;
+}
+
+.selector-chip strong,
+.selector-chip span {
+  display: block;
+}
+
+.selector-chip span {
+  color: var(--muted);
+}
+
+.selector-chip-active {
+  border-color: rgba(194, 91, 45, 0.45);
+  background: var(--accent-soft);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(19, 34, 46, 0.08);
+  text-transform: capitalize;
 }
 
 @media (max-width: 900px) {
@@ -287,7 +399,11 @@ input {
   .hero,
   .roadmap,
   .grid,
-  .summary-grid {
+  .summary-grid,
+  .management-grid,
+  .inline-fields,
+  .wide-card .inline-fields,
+  .selector-grid {
     grid-template-columns: 1fr;
   }
 
@@ -295,5 +411,9 @@ input {
   .assignment-list li,
   .data-list li {
     flex-direction: column;
+  }
+
+  .wide-card {
+    grid-column: auto;
   }
 }

@@ -16,7 +16,7 @@ import type {
   StopCategory as PrismaStopCategory,
   StopStatus as PrismaStopStatus,
   Vehicle
-} from "@prisma/client";
+} from "../../../generated/prisma/client";
 
 function mapStopCategory(category: PrismaStopCategory): StopCategory {
   switch (category) {

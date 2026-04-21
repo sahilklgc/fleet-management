@@ -1,5 +1,8 @@
 import { StopCategory, StopStatus } from "@lgc/domain-types";
-import type { StopCategory as PrismaStopCategory, StopStatus as PrismaStopStatus } from "@prisma/client";
+import type {
+  StopCategory as PrismaStopCategory,
+  StopStatus as PrismaStopStatus
+} from "../../../generated/prisma/client";
 
 export function mapStopCategory(category: PrismaStopCategory): StopCategory {
   switch (category) {

@@ -17,5 +17,8 @@
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test": "echo \"No tests yet for config\"",
     "format": "echo \"Format tooling will be added in the next setup pass\""
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
   }
 }

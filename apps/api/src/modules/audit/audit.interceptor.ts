@@ -3,7 +3,7 @@ import { Reflector } from "@nestjs/core";
 import { catchError, tap } from "rxjs/operators";
 import type { Observable } from "rxjs";
 import type { ActiveUser } from "@lgc/domain-types";
-import { AuditOutcome, Prisma } from "@prisma/client";
+import { AuditOutcome, Prisma } from "../../generated/prisma/client";
 import { AUDIT_ACTION_KEY } from "../common/decorators/audit-action.decorator";
 import { AuditService } from "./audit.service";
 

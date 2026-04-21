@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
   --bg: #f4efe7;
   --panel: rgba(255, 248, 240, 0.88);

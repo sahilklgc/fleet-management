@@ -473,7 +473,7 @@ export function AppShell() {
 
   if (!token) {
     return (
-      <main className="shell app-shell">
+      <main className="shell app-shell min-h-screen">
         <section className="login-stage">
           <div className="login-copy">
             <p className="eyebrow">Operations Login</p>
@@ -501,7 +501,11 @@ export function AppShell() {
 
             {loginError ? <p className="error-copy">{loginError}</p> : null}
 
-            <button className="action-button" disabled={isPending} type="submit">
+            <button
+              className="action-button transition-transform duration-150 hover:-translate-y-0.5"
+              disabled={isPending}
+              type="submit"
+            >
               {isPending ? "Signing in..." : "Sign In"}
             </button>
           </form>
@@ -511,7 +515,7 @@ export function AppShell() {
   }
 
   return (
-    <main className="shell app-shell">
+    <main className="shell app-shell min-h-screen">
       <section className="topbar">
         <div>
           <p className="eyebrow">Authenticated Session</p>
@@ -523,7 +527,11 @@ export function AppShell() {
           {loadError ? <p className="error-copy">{loadError}</p> : null}
         </div>
 
-        <button className="ghost-button" onClick={handleLogout} type="button">
+        <button
+          className="ghost-button transition-colors duration-150 hover:bg-slate-900/10"
+          onClick={handleLogout}
+          type="button"
+        >
           Log Out
         </button>
       </section>
@@ -558,7 +566,11 @@ export function AppShell() {
                 <input value={branchName} onChange={(event) => setBranchName(event.target.value)} />
               </label>
             </div>
-            <button className="action-button" disabled={branchFormState.busy} type="submit">
+            <button
+              className="action-button transition-transform duration-150 hover:-translate-y-0.5"
+              disabled={branchFormState.busy}
+              type="submit"
+            >
               {branchFormState.busy ? "Saving..." : "Create Branch"}
             </button>
             {branchFormState.message ? <p className="success-copy">{branchFormState.message}</p> : null}
@@ -618,7 +630,11 @@ export function AppShell() {
               <span>Phone</span>
               <input value={employeePhone} onChange={(event) => setEmployeePhone(event.target.value)} />
             </label>
-            <button className="action-button" disabled={employeeFormState.busy} type="submit">
+            <button
+              className="action-button transition-transform duration-150 hover:-translate-y-0.5"
+              disabled={employeeFormState.busy}
+              type="submit"
+            >
               {employeeFormState.busy ? "Saving..." : "Create Employee"}
             </button>
             {employeeFormState.message ? <p className="success-copy">{employeeFormState.message}</p> : null}
@@ -668,7 +684,11 @@ export function AppShell() {
               <span>Plate</span>
               <input value={vehiclePlate} onChange={(event) => setVehiclePlate(event.target.value)} />
             </label>
-            <button className="action-button" disabled={vehicleFormState.busy} type="submit">
+            <button
+              className="action-button transition-transform duration-150 hover:-translate-y-0.5"
+              disabled={vehicleFormState.busy}
+              type="submit"
+            >
               {vehicleFormState.busy ? "Saving..." : "Create Vehicle"}
             </button>
             {vehicleFormState.message ? <p className="success-copy">{vehicleFormState.message}</p> : null}
@@ -747,7 +767,11 @@ export function AppShell() {
                 </select>
               </label>
             </div>
-            <button className="action-button" disabled={stopFormState.busy} type="submit">
+            <button
+              className="action-button transition-transform duration-150 hover:-translate-y-0.5"
+              disabled={stopFormState.busy}
+              type="submit"
+            >
               {stopFormState.busy ? "Saving..." : "Create Stop"}
             </button>
             {stopFormState.message ? <p className="success-copy">{stopFormState.message}</p> : null}
@@ -818,7 +842,11 @@ export function AppShell() {
               </div>
             </div>
 
-            <button className="action-button" disabled={routeFormState.busy} type="submit">
+            <button
+              className="action-button transition-transform duration-150 hover:-translate-y-0.5"
+              disabled={routeFormState.busy}
+              type="submit"
+            >
               {routeFormState.busy ? "Saving..." : "Create Route"}
             </button>
             {routeFormState.message ? <p className="success-copy">{routeFormState.message}</p> : null}
@@ -891,7 +919,11 @@ export function AppShell() {
               </label>
             </div>
 
-            <button className="action-button" disabled={assignmentFormState.busy} type="submit">
+            <button
+              className="action-button transition-transform duration-150 hover:-translate-y-0.5"
+              disabled={assignmentFormState.busy}
+              type="submit"
+            >
               {assignmentFormState.busy ? "Saving..." : "Create Assignment"}
             </button>
             {assignmentFormState.message ? <p className="success-copy">{assignmentFormState.message}</p> : null}

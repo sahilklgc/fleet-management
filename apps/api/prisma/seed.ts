@@ -1,4 +1,4 @@
-import argon2 from "argon2";
+import bcrypt from "bcryptjs";
 import { PrismaClient, UserStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -94,7 +94,7 @@ async function main() {
     }
   }
 
-  const passwordHash = await argon2.hash("ChangeMe123!");
+  const passwordHash = await bcrypt.hash("ChangeMe123!", 12);
   const user = await prisma.user.upsert({
     where: { email: "admin@lgc.local" },
     update: {

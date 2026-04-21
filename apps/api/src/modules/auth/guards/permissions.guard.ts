@@ -11,7 +11,7 @@ import { IS_PUBLIC_KEY } from "../../common/decorators/public.decorator";
 
 @Injectable()
 export class PermissionsGuard {
-  constructor(private readonly reflector: Reflector) {}
+  private readonly reflector = new Reflector();
 
   canActivate(context: ExecutionContext) {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [

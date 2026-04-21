@@ -9,8 +9,9 @@ import { AuditService } from "./audit.service";
 
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
+  private readonly reflector = new Reflector();
+
   constructor(
-    private readonly reflector: Reflector,
     private readonly auditService: AuditService
   ) {}
 

@@ -7,7 +7,9 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "noEmit": true,
+    "isolatedModules": true
   },
   "include": [
     "next-env.d.ts",

@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import argon2 from "argon2";
+import bcrypt from "bcryptjs";
 import { UserStatus } from "@prisma/client";
 import { UserRole, type ActiveUser, type PermissionKey } from "@lgc/domain-types";
 import { PrismaService } from "../database/prisma.service";
@@ -40,7 +40,7 @@ export class AuthService {
       throw new UnauthorizedException("Invalid credentials.");
     }
 
-    const passwordMatches = await argon2.verify(user.passwordHash, loginDto.password);
+    const passwordMatches = await bcrypt.compare(loginDto.password, user.passwordHash);
     if (!passwordMatches) {
       throw new UnauthorizedException("Invalid credentials.");
     }

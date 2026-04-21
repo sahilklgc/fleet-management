@@ -12,13 +12,15 @@
     "format": "echo \"Format tooling will be added in the next setup pass\""
   },
   "dependencies": {
-    "@lgc/domain-types": "workspace:*",
+    "@lgc/domain-types": "file:../../packages/domain-types",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/runtime": "^7.28.0",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

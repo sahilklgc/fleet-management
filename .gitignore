@@ -1,0 +1,16 @@
+.DS_Store
+.env
+.env.local
+.env.*.local
+.turbo
+.next
+dist
+coverage
+node_modules
+yarn.lock
+*.log
+
+# Local infrastructure volumes
+.docker/
+postgres-data/
+redis-data/

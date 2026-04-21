@@ -1,0 +1,279 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  INVITED
+  DISABLED
+}
+
+enum StopStatus {
+  PENDING
+  ARRIVED
+  COMPLETED
+  SKIPPED
+  ISSUE_REPORTED
+}
+
+enum StopCategory {
+  PRESSURE_WASHING
+  SHELTER
+  STANDALONE
+}
+
+enum ServiceFrequency {
+  SEVEN_DAY
+  FIVE_DAY
+  BIWEEKLY
+}
+
+enum AuditOutcome {
+  SUCCESS
+  FAILURE
+}
+
+model Branch {
+  id          String      @id @default(cuid())
+  code        String      @unique
+  name        String
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  employees   Employee[]
+  vehicles    Vehicle[]
+  routes      Route[]
+}
+
+model User {
+  id              String               @id @default(cuid())
+  email           String               @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  status          UserStatus           @default(INVITED)
+  mfaEnabled      Boolean              @default(false)
+  lastLoginAt     DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  employee        Employee?
+  roleAssignments UserRoleAssignment[]
+  sessions        Session[]
+  auditLogs       AuditLog[]           @relation("AuditActor")
+  imports         ImportBatch[]        @relation("ImportActor")
+  routeAssignments RouteAssignment[]   @relation("AssignmentActor")
+  stopEvents      StopEvent[]          @relation("StopEventActor")
+}
+
+model Role {
+  id                    String               @id @default(cuid())
+  key                   String               @unique
+  name                  String
+  description           String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  userAssignments       UserRoleAssignment[]
+  permissionAssignments RolePermission[]
+}
+
+model Permission {
+  id                String           @id @default(cuid())
+  key               String           @unique
+  name              String
+  description       String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  roleAssignments   RolePermission[]
+}
+
+model UserRoleAssignment {
+  id        String   @id @default(cuid())
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  roleId       String
+  permissionId String
+  createdAt    DateTime   @default(now())
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+}
+
+model Session {
+  id              String   @id @default(cuid())
+  userId          String
+  refreshTokenHash String
+  ipAddress       String?
+  userAgent       String?
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Employee {
+  id            String              @id @default(cuid())
+  userId        String?             @unique
+  branchId      String
+  employeeCode  String              @unique
+  firstName     String
+  lastName      String
+  phoneNumber   String?
+  isActive      Boolean             @default(true)
+  hiredAt       DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  user          User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  branch        Branch              @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  assignments   RouteAssignment[]
+}
+
+model Vehicle {
+  id              String            @id @default(cuid())
+  branchId        String
+  vehicleNumber   String            @unique
+  plateNumber     String?
+  vin             String?
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  branch          Branch            @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  assignments     RouteAssignment[]
+}
+
+model ImportBatch {
+  id              String       @id @default(cuid())
+  importedByUserId String
+  fileName        String
+  source          String
+  appliedAt       DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  importedBy      User         @relation("ImportActor", fields: [importedByUserId], references: [id], onDelete: Restrict)
+  rows            ImportRow[]
+}
+
+model ImportRow {
+  id             String       @id @default(cuid())
+  importBatchId  String
+  rowNumber      Int
+  clientStopId   String?
+  rowPayload     Json
+  createdAt      DateTime     @default(now())
+  importBatch    ImportBatch  @relation(fields: [importBatchId], references: [id], onDelete: Cascade)
+}
+
+model MasterStop {
+  id                String             @id @default(cuid())
+  clientStopId      String             @unique
+  name              String
+  latitude          Decimal            @db.Decimal(9, 6)
+  longitude         Decimal            @db.Decimal(9, 6)
+  category          StopCategory
+  serviceFrequency  ServiceFrequency
+  isActive          Boolean            @default(true)
+  manualOverride    Boolean            @default(false)
+  importedAt        DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  routeStops        RouteStop[]
+  stopEvents        StopEvent[]
+}
+
+model Route {
+  id            String            @id @default(cuid())
+  branchId      String
+  code          String
+  name          String
+  isActive      Boolean           @default(true)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  branch        Branch            @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  routeStops    RouteStop[]
+  assignments   RouteAssignment[]
+
+  @@unique([branchId, code])
+}
+
+model RouteStop {
+  id                    String      @id @default(cuid())
+  routeId               String
+  masterStopId          String
+  sequenceNumber        Int
+  plannedServiceMinutes Int?
+  isActive              Boolean     @default(true)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  route                 Route       @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  masterStop            MasterStop  @relation(fields: [masterStopId], references: [id], onDelete: Restrict)
+
+  @@unique([routeId, sequenceNumber])
+  @@unique([routeId, masterStopId])
+}
+
+model RouteAssignment {
+  id                String      @id @default(cuid())
+  routeId           String
+  employeeId        String
+  vehicleId         String
+  assignmentDate    DateTime
+  assignedByUserId  String
+  startedAt         DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  route             Route       @relation(fields: [routeId], references: [id], onDelete: Restrict)
+  employee          Employee    @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  vehicle           Vehicle     @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  assignedBy        User        @relation("AssignmentActor", fields: [assignedByUserId], references: [id], onDelete: Restrict)
+  stopEvents        StopEvent[]
+
+  @@unique([routeId, assignmentDate])
+  @@index([assignmentDate])
+}
+
+model StopEvent {
+  id                 String       @id @default(cuid())
+  routeAssignmentId  String
+  masterStopId       String
+  status             StopStatus
+  occurredAt         DateTime
+  reason             String?
+  metadataJson       Json?
+  createdByUserId    String?
+  createdAt          DateTime     @default(now())
+  routeAssignment    RouteAssignment @relation(fields: [routeAssignmentId], references: [id], onDelete: Cascade)
+  masterStop         MasterStop   @relation(fields: [masterStopId], references: [id], onDelete: Restrict)
+  createdBy          User?        @relation("StopEventActor", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@index([routeAssignmentId, occurredAt])
+}
+
+model AuditLog {
+  id             String       @id @default(cuid())
+  actorUserId    String?
+  action         String
+  entityType     String
+  entityId       String?
+  outcome        AuditOutcome @default(SUCCESS)
+  metadataJson   Json?
+  occurredAt     DateTime     @default(now())
+  actor          User?        @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([action, occurredAt])
+}

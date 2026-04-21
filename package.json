@@ -1,0 +1,30 @@
+{
+  "name": "@lgc/fleet-management",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Fleet management platform monorepo for web, API, and shared packages.",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "format": "turbo run format",
+    "db:up": "docker compose -f infra/docker-compose.yml up -d postgres redis",
+    "db:down": "docker compose -f infra/docker-compose.yml down",
+    "db:generate": "npm run db:generate --workspace @lgc/api",
+    "db:migrate": "npm run db:migrate --workspace @lgc/api",
+    "db:seed": "npm run db:seed --workspace @lgc/api"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.12",
+    "typescript": "^5.8.3"
+  }
+}

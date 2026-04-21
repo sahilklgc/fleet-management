@@ -1,0 +1,131 @@
+:root {
+  --bg: #f4efe7;
+  --panel: rgba(255, 248, 240, 0.88);
+  --panel-strong: #fffaf2;
+  --ink: #13222e;
+  --muted: #5a6672;
+  --accent: #c25b2d;
+  --accent-soft: #f3d9c9;
+  --line: rgba(19, 34, 46, 0.1);
+  --shadow: 0 18px 45px rgba(19, 34, 46, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(194, 91, 45, 0.22), transparent 28%),
+    linear-gradient(135deg, #f8f0e5 0%, #f1ece4 52%, #e8f2ef 100%);
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+}
+
+.shell {
+  width: min(1100px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 4rem 0 5rem;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+.hero-copy,
+.hero-panel,
+.card,
+.roadmap {
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.hero-copy {
+  padding: 2rem;
+}
+
+.hero-copy h1 {
+  margin: 0.4rem 0 1rem;
+  font-size: clamp(2.6rem, 6vw, 4.7rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  max-width: 12ch;
+}
+
+.lede,
+.hero-panel p,
+.card p,
+.priority-list {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.hero-panel {
+  padding: 1.75rem;
+  background: var(--panel-strong);
+}
+
+.hero-panel h2,
+.card h2,
+.roadmap h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.eyebrow,
+.card-kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.card {
+  padding: 1.4rem;
+}
+
+.roadmap {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1.5rem;
+}
+
+.priority-list {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.priority-list li + li {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .hero,
+  .roadmap,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

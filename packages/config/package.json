@@ -1,0 +1,21 @@
+{
+  "name": "@lgc/config",
+  "private": true,
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "dev": "tsc --project tsconfig.json --watch --preserveWatchOutput",
+    "lint": "echo \"No lint configured for config yet\"",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "test": "echo \"No tests yet for config\"",
+    "format": "echo \"Format tooling will be added in the next setup pass\""
+  }
+}

@@ -123,6 +123,33 @@ export function mapRoute(route: Route & { branch: Branch; routeStops?: Array<{ i
   };
 }
 
+export function mapRouteDetail(
+  route: Route & {
+    branch: Branch;
+    routeStops: Array<{
+      id: string;
+      sequenceNumber: number;
+      masterStop: PrismaMasterStop;
+    }>;
+  }
+) {
+  return {
+    ...mapRoute(route),
+    stops: route.routeStops
+      .slice()
+      .sort((left, right) => left.sequenceNumber - right.sequenceNumber)
+      .map((routeStop) => {
+        const masterStop = mapMasterStop(routeStop.masterStop);
+
+        return {
+          ...masterStop,
+          routeStopId: routeStop.id,
+          sequenceNumber: routeStop.sequenceNumber
+        };
+      })
+  };
+}
+
 export function mapRouteAssignment(
   assignment: PrismaRouteAssignment & {
     route: Route;

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
 import { RequirePermissions } from "../common/decorators/permissions.decorator";
 import { AuditAction } from "../common/decorators/audit-action.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
@@ -25,5 +25,23 @@ export class AssignmentsController {
     @CurrentUser() user: ActiveUser | undefined
   ) {
     return this.assignmentsService.create(createAssignmentDto, user);
+  }
+
+  @Patch(":id")
+  @RequirePermissions("assignments.manage")
+  @AuditAction("assignments.update")
+  update(
+    @Param("id") id: string,
+    @Body() updateAssignmentDto: CreateAssignmentDto,
+    @CurrentUser() user: ActiveUser | undefined
+  ) {
+    return this.assignmentsService.update(id, updateAssignmentDto, user);
+  }
+
+  @Delete(":id")
+  @RequirePermissions("assignments.manage")
+  @AuditAction("assignments.delete")
+  remove(@Param("id") id: string) {
+    return this.assignmentsService.remove(id);
   }
 }

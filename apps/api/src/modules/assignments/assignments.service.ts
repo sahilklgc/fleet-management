@@ -3,6 +3,7 @@ import type { ActiveUser } from "@lgc/domain-types";
 import { PrismaService } from "../database/prisma.service";
 import { getDayRange } from "../common/utils/date-range";
 import { mapRouteAssignment, mapStopStatus } from "../common/utils/domain-mappers";
+import { handlePrismaError } from "../common/utils/prisma-error";
 import { CreateAssignmentDto } from "./dto/create-assignment.dto";
 
 @Injectable()
@@ -79,21 +80,74 @@ export class AssignmentsService {
   }
 
   async create(createAssignmentDto: CreateAssignmentDto, user: ActiveUser | undefined) {
-    const assignment = await this.prisma.routeAssignment.create({
-      data: {
-        routeId: createAssignmentDto.routeId,
-        employeeId: createAssignmentDto.employeeId,
-        vehicleId: createAssignmentDto.vehicleId,
-        assignedByUserId: user?.sub ?? "",
-        assignmentDate: new Date(createAssignmentDto.assignmentDate)
-      },
-      include: {
-        route: true,
-        employee: true,
-        vehicle: true
-      }
-    });
+    try {
+      const assignment = await this.prisma.routeAssignment.create({
+        data: {
+          routeId: createAssignmentDto.routeId,
+          employeeId: createAssignmentDto.employeeId,
+          vehicleId: createAssignmentDto.vehicleId,
+          assignedByUserId: user?.sub ?? "",
+          assignmentDate: new Date(createAssignmentDto.assignmentDate)
+        },
+        include: {
+          route: true,
+          employee: true,
+          vehicle: true
+        }
+      });
 
-    return mapRouteAssignment(assignment);
+      return mapRouteAssignment(assignment);
+    } catch (error) {
+      handlePrismaError(error, {
+        entityName: "Assignment",
+        duplicateMessage: "That route already has an assignment for the selected date."
+      });
+    }
+  }
+
+  async update(id: string, updateAssignmentDto: CreateAssignmentDto, user: ActiveUser | undefined) {
+    try {
+      const assignment = await this.prisma.routeAssignment.update({
+        where: { id },
+        data: {
+          routeId: updateAssignmentDto.routeId,
+          employeeId: updateAssignmentDto.employeeId,
+          vehicleId: updateAssignmentDto.vehicleId,
+          assignedByUserId: user?.sub ?? "",
+          assignmentDate: new Date(updateAssignmentDto.assignmentDate)
+        },
+        include: {
+          route: true,
+          employee: true,
+          vehicle: true
+        }
+      });
+
+      return mapRouteAssignment(assignment);
+    } catch (error) {
+      handlePrismaError(error, {
+        entityName: "Assignment",
+        duplicateMessage: "That route already has an assignment for the selected date.",
+        notFoundMessage: "Assignment not found."
+      });
+    }
+  }
+
+  async remove(id: string) {
+    try {
+      await this.prisma.routeAssignment.delete({
+        where: { id }
+      });
+
+      return {
+        deleted: true,
+        id
+      };
+    } catch (error) {
+      handlePrismaError(error, {
+        entityName: "Assignment",
+        notFoundMessage: "Assignment not found."
+      });
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
 import { AuditAction } from "../common/decorators/audit-action.decorator";
 import { RequirePermissions } from "../common/decorators/permissions.decorator";
 import { CreateRouteDto } from "./dto/create-route.dto";
@@ -14,10 +14,30 @@ export class RoutesController {
     return this.routesService.list(branchId);
   }
 
+  @Get(":id")
+  @RequirePermissions("routes.manage")
+  getById(@Param("id") id: string) {
+    return this.routesService.getById(id);
+  }
+
   @Post()
   @RequirePermissions("routes.manage")
   @AuditAction("routes.create")
   create(@Body() createRouteDto: CreateRouteDto) {
     return this.routesService.create(createRouteDto);
+  }
+
+  @Patch(":id")
+  @RequirePermissions("routes.manage")
+  @AuditAction("routes.update")
+  update(@Param("id") id: string, @Body() updateRouteDto: CreateRouteDto) {
+    return this.routesService.update(id, updateRouteDto);
+  }
+
+  @Delete(":id")
+  @RequirePermissions("routes.manage")
+  @AuditAction("routes.delete")
+  remove(@Param("id") id: string) {
+    return this.routesService.remove(id);
   }
 }

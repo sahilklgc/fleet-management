@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
 import { AuditAction } from "../common/decorators/audit-action.decorator";
 import { RequirePermissions } from "../common/decorators/permissions.decorator";
 import { CreateVehicleDto } from "./dto/create-vehicle.dto";
@@ -19,5 +19,19 @@ export class VehiclesController {
   @AuditAction("vehicles.create")
   create(@Body() createVehicleDto: CreateVehicleDto) {
     return this.vehiclesService.create(createVehicleDto);
+  }
+
+  @Patch(":id")
+  @RequirePermissions("vehicles.manage")
+  @AuditAction("vehicles.update")
+  update(@Param("id") id: string, @Body() updateVehicleDto: CreateVehicleDto) {
+    return this.vehiclesService.update(id, updateVehicleDto);
+  }
+
+  @Delete(":id")
+  @RequirePermissions("vehicles.manage")
+  @AuditAction("vehicles.delete")
+  remove(@Param("id") id: string) {
+    return this.vehiclesService.remove(id);
   }
 }

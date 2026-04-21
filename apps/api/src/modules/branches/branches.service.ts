@@ -1,6 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../database/prisma.service";
 import { mapBranch } from "../common/utils/domain-mappers";
+import { handlePrismaError } from "../common/utils/prisma-error";
 import { CreateBranchDto } from "./dto/create-branch.dto";
 
 @Injectable()
@@ -18,13 +19,60 @@ export class BranchesService {
   }
 
   async create(createBranchDto: CreateBranchDto) {
-    const branch = await this.prisma.branch.create({
-      data: {
-        code: createBranchDto.code.trim().toUpperCase(),
-        name: createBranchDto.name.trim()
-      }
-    });
+    try {
+      const branch = await this.prisma.branch.create({
+        data: {
+          code: createBranchDto.code.trim().toUpperCase(),
+          name: createBranchDto.name.trim()
+        }
+      });
 
-    return mapBranch(branch);
+      return mapBranch(branch);
+    } catch (error) {
+      handlePrismaError(error, {
+        entityName: "Branch",
+        duplicateMessage: "A branch with this code already exists."
+      });
+    }
+  }
+
+  async update(id: string, updateBranchDto: CreateBranchDto) {
+    try {
+      const branch = await this.prisma.branch.update({
+        where: { id },
+        data: {
+          code: updateBranchDto.code.trim().toUpperCase(),
+          name: updateBranchDto.name.trim()
+        }
+      });
+
+      return mapBranch(branch);
+    } catch (error) {
+      handlePrismaError(error, {
+        entityName: "Branch",
+        duplicateMessage: "A branch with this code already exists.",
+        notFoundMessage: "Branch not found."
+      });
+    }
+  }
+
+  async remove(id: string) {
+    try {
+      await this.prisma.branch.delete({
+        where: { id }
+      });
+
+      return {
+        deleted: true,
+        id
+      };
+    } catch (error) {
+      handlePrismaError(error, {
+        entityName: "Branch",
+        referenceMessage:
+          "Branch cannot be deleted while employees, vehicles, or routes still belong to it.",
+        notFoundMessage: "Branch not found."
+      });
+    }
   }
 }

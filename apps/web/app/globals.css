@@ -325,6 +325,23 @@ select {
   gap: 0.9rem;
 }
 
+.form-actions,
+.section-actions,
+.list-actions,
+.row-meta-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.form-actions {
+  flex-wrap: wrap;
+}
+
+.section-actions {
+  justify-content: flex-end;
+}
+
 .inline-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -347,6 +364,24 @@ select {
   color: #2a7a4e;
 }
 
+.small-copy,
+.empty-copy {
+  margin: 0;
+  color: var(--muted);
+}
+
+.checkbox-field {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  color: var(--muted);
+}
+
+.checkbox-field input {
+  width: 1rem;
+  height: 1rem;
+}
+
 .selector-panel {
   display: grid;
   gap: 0.75rem;
@@ -362,6 +397,9 @@ select {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
+  align-content: flex-start;
+  max-height: 420px;
+  overflow: auto;
 }
 
 .selector-chip {
@@ -370,6 +408,7 @@ select {
   border-radius: 18px;
   padding: 0.9rem 1rem;
   background: #fffdf8;
+  cursor: pointer;
 }
 
 .selector-chip strong,
@@ -384,6 +423,117 @@ select {
 .selector-chip-active {
   border-color: rgba(194, 91, 45, 0.45);
   background: var(--accent-soft);
+}
+
+.list-button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  background: rgba(255, 253, 248, 0.9);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.danger-button {
+  border-color: rgba(179, 54, 32, 0.2);
+  color: #b33620;
+}
+
+.row-meta-actions {
+  justify-content: space-between;
+  width: 100%;
+  color: var(--muted);
+}
+
+.muted-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(19, 34, 46, 0.08);
+  padding: 0.35rem 0.75rem;
+  color: var(--muted);
+}
+
+.route-workspace {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 1rem;
+}
+
+.route-list-panel,
+.route-detail-panel {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: rgba(255, 253, 248, 0.65);
+  padding: 1rem;
+}
+
+.route-list {
+  max-height: 640px;
+  overflow: auto;
+}
+
+.route-row {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.route-row-active {
+  border-top-color: rgba(194, 91, 45, 0.4);
+}
+
+.route-select {
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.route-select strong,
+.route-select span {
+  display: block;
+}
+
+.route-detail-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.route-builder-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.ordered-stop-list {
+  display: grid;
+  gap: 0.75rem;
+  max-height: 420px;
+  overflow: auto;
+}
+
+.ordered-stop-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 0.9rem 1rem;
+  background: #fffdf8;
+}
+
+.ordered-stop-card strong,
+.ordered-stop-card span {
+  display: block;
+}
+
+.ordered-stop-card span {
+  color: var(--muted);
 }
 
 .status-pill {
@@ -405,13 +555,17 @@ select {
   .management-grid,
   .inline-fields,
   .wide-card .inline-fields,
-  .selector-grid {
+  .selector-grid,
+  .route-workspace,
+  .route-builder-grid {
     grid-template-columns: 1fr;
   }
 
   .topbar,
   .assignment-list li,
-  .data-list li {
+  .data-list li,
+  .row-meta-actions,
+  .route-detail-header {
     flex-direction: column;
   }
 

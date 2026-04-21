@@ -3,7 +3,7 @@ import { Reflector } from "@nestjs/core";
 import { catchError, tap } from "rxjs/operators";
 import type { Observable } from "rxjs";
 import type { ActiveUser } from "@lgc/domain-types";
-import { AuditOutcome } from "@prisma/client";
+import { AuditOutcome, Prisma } from "@prisma/client";
 import { AUDIT_ACTION_KEY } from "../common/decorators/audit-action.decorator";
 import { AuditService } from "./audit.service";
 
@@ -41,12 +41,12 @@ export class AuditInterceptor implements NestInterceptor {
           action,
           entityType: "api_request",
           entityId: request.params?.id,
-          metadataJson: {
+          metadataJson: this.toJsonValue({
             method: request.method,
             url: request.url,
             query: request.query,
             body: this.redactSensitiveFields(request.body)
-          }
+          })
         });
       }),
       catchError((error: unknown) => {
@@ -56,13 +56,13 @@ export class AuditInterceptor implements NestInterceptor {
           entityType: "api_request",
           entityId: request.params?.id,
           outcome: AuditOutcome.FAILURE,
-          metadataJson: {
+          metadataJson: this.toJsonValue({
             method: request.method,
             url: request.url,
             query: request.query,
             body: this.redactSensitiveFields(request.body),
             error: error instanceof Error ? error.message : "unknown error"
-          }
+          })
         });
 
         throw error;
@@ -81,5 +81,9 @@ export class AuditInterceptor implements NestInterceptor {
     }
 
     return clone;
+  }
+
+  private toJsonValue(value: Record<string, unknown>): Prisma.InputJsonValue {
+    return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
   }
 }

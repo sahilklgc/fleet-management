@@ -19,10 +19,10 @@
     "baseUrl": ".",
     "paths": {
       "@lgc/domain-types": [
-        "packages/domain-types/src/index.ts"
+        "packages/domain-types/dist/index.d.ts"
       ],
       "@lgc/config/*": [
-        "packages/config/src/*"
+        "packages/config/dist/*"
       ]
     }
   }

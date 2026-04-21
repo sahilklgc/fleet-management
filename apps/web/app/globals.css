@@ -27,6 +27,11 @@ body {
   font-family: "Avenir Next", "Segoe UI", sans-serif;
 }
 
+button,
+input {
+  font: inherit;
+}
+
 .shell {
   width: min(1100px, calc(100% - 2rem));
   margin: 0 auto;
@@ -122,10 +127,173 @@ body {
   margin-top: 0.75rem;
 }
 
+.app-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.login-stage,
+.topbar,
+.summary-card,
+.login-card {
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.login-stage {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.login-copy,
+.login-card,
+.topbar {
+  padding: 1.8rem;
+}
+
+.login-card {
+  display: grid;
+  gap: 1rem;
+  align-content: center;
+  background: var(--panel-strong);
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.field input {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  background: #fffdf8;
+}
+
+.action-button,
+.ghost-button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.9rem 1.2rem;
+  cursor: pointer;
+}
+
+.action-button {
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+}
+
+.ghost-button {
+  background: rgba(19, 34, 46, 0.08);
+  color: var(--ink);
+  align-self: start;
+}
+
+.error-copy {
+  margin: 0;
+  color: #b33620;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.summary-card {
+  padding: 1.4rem;
+}
+
+.summary-card strong {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 2rem;
+  letter-spacing: -0.05em;
+}
+
+.data-grid {
+  margin-top: 0;
+}
+
+.data-card h2 {
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.data-list,
+.assignment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.data-list li,
+.assignment-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+
+.data-list li:first-child,
+.assignment-list li:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.data-list strong,
+.assignment-list strong {
+  display: block;
+}
+
+.data-list span,
+.assignment-list span {
+  color: var(--muted);
+}
+
+.compact-list li {
+  gap: 0.5rem;
+}
+
+.assignments-panel {
+  align-items: start;
+}
+
 @media (max-width: 900px) {
+  .login-stage,
   .hero,
   .roadmap,
-  .grid {
+  .grid,
+  .summary-grid {
     grid-template-columns: 1fr;
+  }
+
+  .topbar,
+  .assignment-list li,
+  .data-list li {
+    flex-direction: column;
   }
 }

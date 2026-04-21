@@ -48,6 +48,15 @@ export class AuthService {
     const activeUser = this.buildActiveUser(user);
     const accessToken = await this.jwtService.signAsync(activeUser);
 
+    await this.prisma.user.update({
+      where: {
+        id: user.id
+      },
+      data: {
+        lastLoginAt: new Date()
+      }
+    });
+
     return {
       accessToken,
       user: activeUser

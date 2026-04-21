@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { AuditOutcome } from "@prisma/client";
+import { AuditOutcome, Prisma } from "@prisma/client";
 import { PrismaService } from "../database/prisma.service";
 
 interface RecordAuditParams {
@@ -8,7 +8,7 @@ interface RecordAuditParams {
   entityType: string;
   entityId?: string;
   outcome?: AuditOutcome;
-  metadataJson?: Record<string, unknown>;
+  metadataJson?: Prisma.InputJsonValue;
 }
 
 @Injectable()

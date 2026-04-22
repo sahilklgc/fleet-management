@@ -32,16 +32,22 @@ This repository is intentionally optimized for a modular monolith:
 
 ## Getting started
 
-Install dependencies with `npm`. The repo uses standard npm workspaces, Docker for local infrastructure, and TypeScript across apps and shared packages.
+This repo is set up for standard `npm` workspaces from the repo root. The normal local flow should be:
 
 ```bash
 npm install
 cp .env.example .env
 docker compose -f infra/docker-compose.yml up -d postgres redis
-npm run db:migrate
-npm run db:generate
-npm run db:seed
+npm --workspace @lgc/api run db:migrate
+npm --workspace @lgc/api run db:seed
 npm run dev
+```
+
+If you only want one app process:
+
+```bash
+npm --workspace @lgc/api run dev
+npm --workspace @lgc/web run dev
 ```
 
 Seeded starter credentials after `npm run db:seed`:
@@ -49,6 +55,12 @@ Seeded starter credentials after `npm run db:seed`:
 - email: `admin@lgc.local`
 - password: `ChangeMe123!`
 
-Shared workspace packages compile to `dist/`, so the first `npm run dev` is expected to start their TypeScript watch tasks alongside the app processes through Turbo.
+Notes:
+
+- Run commands from a native Apple Silicon terminal on your Mac, not a Rosetta shell.
+- If you saw `/usr/local/bin/...` in one of my earlier messages, that was only for my assistant shell environment. On your machine you should normally use plain `npm` and `docker`.
+- `npm run dev` starts the full workspace through Turbo.
+- `http://localhost:3000` is the web app.
+- `http://localhost:4000/api/health` is the API health check.
 
 If you want to begin with architecture review instead of installation, start in [docs/architecture.md](/Users/sahil/Projects/LGC/fleet-management/docs/architecture.md), [docs/roadmap.md](/Users/sahil/Projects/LGC/fleet-management/docs/roadmap.md), [docs/permission-matrix.md](/Users/sahil/Projects/LGC/fleet-management/docs/permission-matrix.md), and [docs/data-model.md](/Users/sahil/Projects/LGC/fleet-management/docs/data-model.md).

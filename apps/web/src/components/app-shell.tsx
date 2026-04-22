@@ -112,6 +112,14 @@ type RouteSplitImportPreview = {
   }>;
 };
 
+type RouteSplitApplyResult = {
+  importBatchId: string;
+  appliedRoutes: number;
+  appliedStops: number;
+  updatedRoutes: number;
+  createdRoutes: number;
+};
+
 type AssignmentRow = {
   id: string;
   routeId: string;
@@ -317,6 +325,17 @@ export function AppShell() {
     setRoutes(routeList);
     setAssignments(assignmentBoard);
     setLoadError(null);
+
+    return {
+      user,
+      dashboardSummary,
+      branchList,
+      employeeList,
+      vehicleList,
+      stopList,
+      routeList,
+      assignmentBoard
+    };
   };
 
   const loadRouteDetail = async (routeId: string, activeToken: string) => {
@@ -866,18 +885,46 @@ export function AppShell() {
   }
 
   async function handleApplyRouteImport() {
-    if (!token || !routeImportPayload) {
+    if (!token || !routeImportPayload || !routeImportPreview) {
       return;
     }
 
-    await withSubmission(setRouteImportFormState, "Route split applied.", async () => {
-      await apiRequest("/imports/routes/apply", token, {
+    setRouteImportFormState({
+      busy: true,
+      error: null,
+      message: null
+    });
+
+    try {
+      const result = await apiRequest<RouteSplitApplyResult>("/imports/routes/apply", token, {
         method: "POST",
         body: routeImportPayload
       });
-      await refreshData(token);
-      resetRouteImport();
-    });
+      const refreshed = await refreshData(token);
+      const firstImportedRouteCode = routeImportPreview.routeSummaries[0]?.routeCode;
+      const firstImportedRoute = refreshed.routeList.find(
+        (route) =>
+          route.branchId === routeImportPayload.branchId && route.code === firstImportedRouteCode
+      );
+
+      if (firstImportedRoute) {
+        setSelectedRouteId(firstImportedRoute.id);
+      }
+
+      setRouteImportFile(null);
+      setRouteImportPayload(null);
+      setRouteImportFormState({
+        busy: false,
+        error: null,
+        message: `Applied ${result.appliedRoutes} routes and ${result.appliedStops} stops. ${result.createdRoutes} created, ${result.updatedRoutes} updated.`
+      });
+    } catch (error) {
+      setRouteImportFormState({
+        busy: false,
+        error: error instanceof Error ? error.message : "Could not apply route split.",
+        message: null
+      });
+    }
   }
 
   async function handleCreateOrUpdateAssignment(event: FormEvent<HTMLFormElement>) {
@@ -1687,15 +1734,24 @@ export function AppShell() {
 
             <div className="form-actions">
               <button className="action-button" disabled={routeImportFormState.busy || !routeImportFile} type="submit">
-                {routeImportFormState.busy ? "Reading workbook..." : "Preview Workbook"}
+                {routeImportFormState.busy
+                  ? routeImportPreview
+                    ? "Applying..."
+                    : "Reading workbook..."
+                  : "Preview Workbook"}
               </button>
               {routeImportPreview ? (
-                <button className="ghost-button" onClick={handleApplyRouteImport} type="button">
-                  Apply Route Split
+                <button
+                  className="ghost-button"
+                  disabled={routeImportFormState.busy}
+                  onClick={handleApplyRouteImport}
+                  type="button"
+                >
+                  {routeImportFormState.busy ? "Applying..." : "Apply Route Split"}
                 </button>
               ) : null}
               {(routeImportFile || routeImportPreview) ? (
-                <button className="ghost-button" onClick={resetRouteImport} type="button">
+                <button className="ghost-button" disabled={routeImportFormState.busy} onClick={resetRouteImport} type="button">
                   Clear
                 </button>
               ) : null}

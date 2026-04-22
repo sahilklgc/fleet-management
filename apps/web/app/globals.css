@@ -536,6 +536,19 @@ select {
   color: var(--muted);
 }
 
+.import-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.import-preview-panel {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 253, 248, 0.75);
+  padding: 1rem;
+}
+
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -557,7 +570,8 @@ select {
   .wide-card .inline-fields,
   .selector-grid,
   .route-workspace,
-  .route-builder-grid {
+  .route-builder-grid,
+  .import-preview-grid {
     grid-template-columns: 1fr;
   }
 

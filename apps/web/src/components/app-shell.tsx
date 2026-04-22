@@ -80,6 +80,38 @@ type RouteDetail = Route & {
   >;
 };
 
+type RouteSplitImportPayload = {
+  branchId: string;
+  workbookName: string;
+  routes: Array<{
+    routeName: string;
+    rows: Array<{
+      bsid: string;
+      stopName?: string;
+      sourceRouteNumber?: string;
+      sourceRouteName?: string;
+    }>;
+  }>;
+};
+
+type RouteSplitImportPreview = {
+  workbookName: string;
+  branchId: string;
+  receivedRoutes: number;
+  receivedRows: number;
+  matchedStops: number;
+  unmatchedBsids: string[];
+  duplicateBsids: string[];
+  routeSummaries: Array<{
+    routeName: string;
+    routeCode: string;
+    rowCount: number;
+    matchedRowCount: number;
+    unmatchedBsids: string[];
+    existingRoute: boolean;
+  }>;
+};
+
 type AssignmentRow = {
   id: string;
   routeId: string;
@@ -149,6 +181,51 @@ function getStopLabel(stop: Stop) {
   return `${stop.clientStopId} · ${stop.name}`;
 }
 
+async function parseRouteSplitWorkbook(file: File, branchId: string): Promise<RouteSplitImportPayload> {
+  const XLSX = await import("xlsx");
+  const workbook = XLSX.read(await file.arrayBuffer(), { type: "array" });
+  const routes: RouteSplitImportPayload["routes"] = [];
+
+  for (const sheetName of workbook.SheetNames) {
+    if (sheetName.trim().toLowerCase() === "summary") {
+      continue;
+    }
+
+    const worksheet = workbook.Sheets[sheetName];
+    if (!worksheet) {
+      continue;
+    }
+
+    const rows = (XLSX.utils.sheet_to_json(worksheet, {
+      header: 1,
+      defval: ""
+    }) as Array<Array<string | number | null>>)
+      .slice(1)
+      .map((row) => ({
+        bsid: String(row[4] ?? "").trim(),
+        stopName: String(row[5] ?? "").trim(),
+        sourceRouteNumber: String(row[2] ?? "").trim(),
+        sourceRouteName: String(row[3] ?? "").trim()
+      }))
+      .filter((row) => row.bsid);
+
+    if (rows.length === 0) {
+      continue;
+    }
+
+    routes.push({
+      routeName: sheetName.trim(),
+      rows
+    });
+  }
+
+  return {
+    branchId,
+    workbookName: file.name,
+    routes
+  };
+}
+
 export function AppShell() {
   const [email, setEmail] = useState("admin@lgc.local");
   const [password, setPassword] = useState("ChangeMe123!");
@@ -199,6 +276,10 @@ export function AppShell() {
   const [routeCode, setRouteCode] = useState("R-24");
   const [routeName, setRouteName] = useState("Midtown Sweep");
   const [selectedStopIds, setSelectedStopIds] = useState<string[]>([]);
+  const [routeImportBranchId, setRouteImportBranchId] = useState("");
+  const [routeImportFile, setRouteImportFile] = useState<File | null>(null);
+  const [routeImportPayload, setRouteImportPayload] = useState<RouteSplitImportPayload | null>(null);
+  const [routeImportPreview, setRouteImportPreview] = useState<RouteSplitImportPreview | null>(null);
 
   const [editingAssignmentId, setEditingAssignmentId] = useState<string | null>(null);
   const [assignmentRouteId, setAssignmentRouteId] = useState("");
@@ -211,6 +292,7 @@ export function AppShell() {
   const [vehicleFormState, setVehicleFormState] = useState<FormState>(emptyFormState);
   const [stopFormState, setStopFormState] = useState<FormState>(emptyFormState);
   const [routeFormState, setRouteFormState] = useState<FormState>(emptyFormState);
+  const [routeImportFormState, setRouteImportFormState] = useState<FormState>(emptyFormState);
   const [assignmentFormState, setAssignmentFormState] = useState<FormState>(emptyFormState);
 
   const refreshData = async (activeToken: string) => {
@@ -293,7 +375,10 @@ export function AppShell() {
     if (!routeBranchId) {
       setRouteBranchId(fallbackBranchId);
     }
-  }, [branches, employeeBranchId, routeBranchId, vehicleBranchId]);
+    if (!routeImportBranchId) {
+      setRouteImportBranchId(fallbackBranchId);
+    }
+  }, [branches, employeeBranchId, routeBranchId, routeImportBranchId, vehicleBranchId]);
 
   useEffect(() => {
     if (!assignmentRouteId) {
@@ -417,6 +502,13 @@ export function AppShell() {
     setRouteName("Midtown Sweep");
     setSelectedStopIds([]);
     setRouteFormState(emptyFormState());
+  }
+
+  function resetRouteImport() {
+    setRouteImportFile(null);
+    setRouteImportPayload(null);
+    setRouteImportPreview(null);
+    setRouteImportFormState(emptyFormState());
   }
 
   function resetAssignmentForm() {
@@ -753,6 +845,38 @@ export function AppShell() {
       if (selectedRouteId === route.id) {
         resetRouteForm();
       }
+    });
+  }
+
+  async function handlePreviewRouteImport(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!token || !routeImportBranchId || !routeImportFile) {
+      return;
+    }
+
+    await withSubmission(setRouteImportFormState, "Route split preview ready.", async () => {
+      const payload = await parseRouteSplitWorkbook(routeImportFile, routeImportBranchId);
+      const preview = await apiRequest<RouteSplitImportPreview>("/imports/routes/preview", token, {
+        method: "POST",
+        body: payload
+      });
+      setRouteImportPayload(payload);
+      setRouteImportPreview(preview);
+    });
+  }
+
+  async function handleApplyRouteImport() {
+    if (!token || !routeImportPayload) {
+      return;
+    }
+
+    await withSubmission(setRouteImportFormState, "Route split applied.", async () => {
+      await apiRequest("/imports/routes/apply", token, {
+        method: "POST",
+        body: routeImportPayload
+      });
+      await refreshData(token);
+      resetRouteImport();
     });
   }
 
@@ -1514,6 +1638,125 @@ export function AppShell() {
               </li>
             ))}
           </ul>
+        </article>
+
+        <article className="card control-card wide-card">
+          <div className="section-header">
+            <div>
+              <p className="card-kicker">Route Split Import</p>
+              <h2>Manager workbook intake</h2>
+            </div>
+            <span className="section-count">{routeImportPreview?.receivedRoutes ?? 0}</span>
+          </div>
+
+          <form className="stack-form" onSubmit={handlePreviewRouteImport}>
+            <div className="inline-fields">
+              <label className="field">
+                <span>Branch</span>
+                <select
+                  value={routeImportBranchId}
+                  onChange={(event) => {
+                    setRouteImportBranchId(event.target.value);
+                    setRouteImportPreview(null);
+                  }}
+                >
+                  {branches.map((branch) => (
+                    <option key={branch.id} value={branch.id}>
+                      {branch.code}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                <span>Workbook</span>
+                <input
+                  accept=".xlsx,.xls"
+                  onChange={(event) => {
+                    setRouteImportFile(event.target.files?.[0] ?? null);
+                    setRouteImportPreview(null);
+                  }}
+                  type="file"
+                />
+              </label>
+            </div>
+
+            <p className="small-copy">
+              The importer treats each sheet as an internal route, ignores <code>Sequence #</code>, and
+              matches rows against master stops by unique <code>BSID</code>.
+            </p>
+
+            <div className="form-actions">
+              <button className="action-button" disabled={routeImportFormState.busy || !routeImportFile} type="submit">
+                {routeImportFormState.busy ? "Reading workbook..." : "Preview Workbook"}
+              </button>
+              {routeImportPreview ? (
+                <button className="ghost-button" onClick={handleApplyRouteImport} type="button">
+                  Apply Route Split
+                </button>
+              ) : null}
+              {(routeImportFile || routeImportPreview) ? (
+                <button className="ghost-button" onClick={resetRouteImport} type="button">
+                  Clear
+                </button>
+              ) : null}
+            </div>
+
+            {routeImportFormState.message ? <p className="success-copy">{routeImportFormState.message}</p> : null}
+            {routeImportFormState.error ? <p className="error-copy">{routeImportFormState.error}</p> : null}
+          </form>
+
+          {routeImportPreview ? (
+            <div className="import-preview-grid">
+              <article className="summary-card">
+                <p className="card-kicker">Workbook</p>
+                <strong>{routeImportPreview.workbookName}</strong>
+                <p className="small-copy">
+                  {routeImportPreview.receivedRoutes} routes · {routeImportPreview.receivedRows} rows
+                </p>
+              </article>
+              <article className="summary-card">
+                <p className="card-kicker">Matched BSIDs</p>
+                <strong>{routeImportPreview.matchedStops}</strong>
+                <p className="small-copy">
+                  {routeImportPreview.unmatchedBsids.length} unmatched · {routeImportPreview.duplicateBsids.length} duplicates
+                </p>
+              </article>
+
+              {routeImportPreview.unmatchedBsids.length ? (
+                <div className="import-preview-panel">
+                  <p className="card-kicker">Unmatched BSIDs</p>
+                  <p className="small-copy">{routeImportPreview.unmatchedBsids.join(", ")}</p>
+                </div>
+              ) : null}
+
+              {routeImportPreview.duplicateBsids.length ? (
+                <div className="import-preview-panel">
+                  <p className="card-kicker">Duplicate BSIDs</p>
+                  <p className="small-copy">{routeImportPreview.duplicateBsids.join(", ")}</p>
+                </div>
+              ) : null}
+
+              <div className="import-preview-panel">
+                <p className="card-kicker">Route Preview</p>
+                <ul className="data-list compact-list">
+                  {routeImportPreview.routeSummaries.map((route) => (
+                    <li key={route.routeCode}>
+                      <div>
+                        <strong>{route.routeName}</strong>
+                        <span>{route.routeCode}</span>
+                      </div>
+                      <div className="row-meta-actions">
+                        <span>
+                          {route.matchedRowCount}/{route.rowCount} matched
+                        </span>
+                        <span>{route.existingRoute ? "Will update" : "Will create"}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ) : null}
         </article>
       </section>
     </main>

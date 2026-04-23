@@ -461,6 +461,11 @@ export function AppShell() {
     [dashboard]
   );
 
+  const canApplyRouteImport =
+    Boolean(routeImportPreview) &&
+    routeImportPreview!.unmatchedBsids.length === 0 &&
+    routeImportPreview!.duplicateBsids.length === 0;
+
   const routeOptions = routes.map((route) => ({
     value: route.id,
     label: `${route.code} · ${route.name}`
@@ -1743,7 +1748,7 @@ export function AppShell() {
               {routeImportPreview ? (
                 <button
                   className="ghost-button"
-                  disabled={routeImportFormState.busy}
+                  disabled={routeImportFormState.busy || !canApplyRouteImport}
                   onClick={handleApplyRouteImport}
                   type="button"
                 >
@@ -1759,6 +1764,12 @@ export function AppShell() {
 
             {routeImportFormState.message ? <p className="success-copy">{routeImportFormState.message}</p> : null}
             {routeImportFormState.error ? <p className="error-copy">{routeImportFormState.error}</p> : null}
+            {routeImportPreview && !canApplyRouteImport ? (
+              <p className="error-copy">
+                This workbook cannot be applied yet. Import the full master stops first so the BSIDs in
+                this route split workbook can be matched.
+              </p>
+            ) : null}
           </form>
 
           {routeImportPreview ? (
